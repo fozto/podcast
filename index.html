@@ -689,7 +689,9 @@ function togglePlay() {
 
     if (audio.paused) {
         audio.play().catch(() => {
-            document.getElementById("status").textContent = "● ERROR";
+            if (!audio.error) {
+                document.getElementById("status").textContent = "● ERROR";
+            }
         });
     } else {
         audio.pause();
@@ -721,8 +723,32 @@ audio.addEventListener("pause", () => {
     document.getElementById("status").textContent = "● PAUSED";
 });
 
-audio.addEventListener("error", () => {
+audio.addEventListener("error", async () => {
     document.getElementById("status").textContent = "● AUDIO ERROR";
+
+    const url = audio.src;
+    const code = audio.error ? audio.error.code : 0;
+    let reason = "";
+
+    try {
+        const res = await fetch(url, { method: "HEAD", cache: "no-store" });
+        reason = res.ok
+            ? "File ada di server (HTTP " + res.status + "), tapi browser tidak bisa memutarnya (format/codec tidak didukung atau file rusak)."
+            : "File TIDAK ditemukan di server (HTTP " + res.status + "). Cek branch/folder GitHub Pages dan pastikan sudah ter-deploy.";
+    } catch (e) {
+        reason = code === 4
+            ? "File tidak bisa diakses atau format tidak didukung."
+            : "Gagal menghubungi server untuk file ini.";
+    }
+
+    scanInfo.textContent = "⚠ " + reason + " ";
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = "Buka link file";
+    link.style.color = "#5BAEFF";
+    scanInfo.appendChild(link);
 });
 
 audio.addEventListener("ended", nextSong);
