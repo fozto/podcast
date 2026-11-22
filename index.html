@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -51,9 +50,7 @@ body {
     color: #F1F7FF;
 }
 
-.logo span {
-    color: #4DA3FF;
-}
+.logo span { color: #4DA3FF; }
 
 .subtitle {
     font-size: 9px;
@@ -99,10 +96,7 @@ body {
     height: 220px;
 }
 
-.cover::after {
-    width: 300px;
-    height: 300px;
-}
+.cover::after { width: 300px; height: 300px; }
 
 .cover-icon {
     font-size: 75px;
@@ -157,9 +151,7 @@ input[type="range"] {
     cursor: pointer;
 }
 
-.progress {
-    margin-bottom: 25px;
-}
+.progress { margin-bottom: 25px; }
 
 .controls {
     display: flex;
@@ -208,6 +200,61 @@ input[type="range"] {
     margin-bottom: 13px;
 }
 
+/* ===== LOMPAT KE MENIT ===== */
+.jump-row {
+    display: flex;
+    gap: 7px;
+}
+
+.jump-row input[type="text"] {
+    flex: 1;
+    min-width: 0;
+    background: #142A44;
+    border: 1px solid #244362;
+    color: #EAF3FF;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+    outline: none;
+    font-family: inherit;
+}
+
+.jump-row input[type="text"]:focus { border-color: #4DA3FF; }
+
+.jump-row button {
+    background: #142A44;
+    border: 1px solid #244362;
+    color: #A9C2DE;
+    padding: 10px 11px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: .2s;
+    white-space: nowrap;
+}
+
+.jump-row button:hover { border-color: #4DA3FF; }
+
+.jump-row .jump-go {
+    background: linear-gradient(135deg, #3289E9, #185AA6);
+    color: white;
+    border-color: #62B5FF;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.jump-hint {
+    text-align: center;
+    font-size: 11px;
+    color: #5F83A8;
+    margin-top: 10px;
+    min-height: 15px;
+}
+
+.jump-hint.ok { color: #5BAEFF; }
+.jump-hint.err { color: #FF7B8A; }
+
 .speed-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -225,9 +272,7 @@ input[type="range"] {
     transition: .2s;
 }
 
-.speed-btn:hover {
-    border-color: #4DA3FF;
-}
+.speed-btn:hover { border-color: #4DA3FF; }
 
 .speed-btn.active {
     background: linear-gradient(135deg, #3289E9, #185AA6);
@@ -243,9 +288,7 @@ input[type="range"] {
     margin-top: 12px;
 }
 
-.volume {
-    margin-top: 5px;
-}
+.volume { margin-top: 5px; }
 
 .volume label {
     display: block;
@@ -254,26 +297,53 @@ input[type="range"] {
     margin-bottom: 12px;
 }
 
+.upload-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
 .upload {
     display: block;
     text-align: center;
-    padding: 15px;
+    padding: 14px 6px;
     border: 1px dashed #3986C8;
     color: #70B8FF;
     border-radius: 12px;
     background: #102844;
     cursor: pointer;
-    font-size: 13px;
-    margin-bottom: 23px;
+    font-size: 12px;
     transition: .2s;
+    font-family: inherit;
 }
 
-.upload:hover {
-    background: #183B61;
+.upload:hover { background: #183B61; }
+
+#fileInput, #folderInput { display: none; }
+
+.scan-btn {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #24517C;
+    color: #8FCBFF;
+    background: #0E2A47;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 12px;
+    letter-spacing: 1px;
+    transition: .2s;
+    font-family: inherit;
 }
 
-#fileInput {
-    display: none;
+.scan-btn:hover { background: #17406A; }
+
+.scan-info {
+    text-align: center;
+    font-size: 11px;
+    color: #5F83A8;
+    margin: 10px 0 22px;
+    line-height: 1.5;
 }
 
 .playlist-header {
@@ -284,9 +354,7 @@ input[type="range"] {
     color: #C3D8EF;
 }
 
-.playlist-header span {
-    color: #5CAFFF;
-}
+.playlist-header span { color: #5CAFFF; }
 
 .track {
     display: flex;
@@ -301,9 +369,7 @@ input[type="range"] {
     transition: .2s;
 }
 
-.track:hover {
-    background: #142D49;
-}
+.track:hover { background: #142D49; }
 
 .track.active {
     border-color: #378DDC;
@@ -319,6 +385,7 @@ input[type="range"] {
     justify-content: center;
     align-items: center;
     color: #68B3FF;
+    flex-shrink: 0;
 }
 
 .track-name {
@@ -339,6 +406,7 @@ input[type="range"] {
     text-align: center;
     padding: 20px 5px;
     font-size: 12px;
+    line-height: 1.6;
     color: #6886A7;
 }
 
@@ -351,13 +419,9 @@ input[type="range"] {
 }
 
 @media(max-width: 360px) {
-    .player {
-        padding: 17px;
-    }
-
-    .speed-btn {
-        font-size: 10px;
-    }
+    .player { padding: 17px; }
+    .speed-btn { font-size: 10px; }
+    .jump-row button { padding: 10px 8px; }
 }
 </style>
 </head>
@@ -392,141 +456,182 @@ input[type="range"] {
             <span id="currentTime">0:00</span>
             <span id="duration">0:00</span>
         </div>
-        <input type="range" id="progress"
-               min="0" max="100" value="0">
+        <input type="range" id="progress" min="0" max="100" step="0.1" value="0">
     </div>
 
     <div class="controls">
         <button onclick="previousSong()" title="Previous">|◀</button>
-        <button class="play" id="playBtn"
-                onclick="togglePlay()">▶</button>
+        <button class="play" id="playBtn" onclick="togglePlay()">▶</button>
         <button onclick="nextSong()" title="Next">▶|</button>
+    </div>
+
+    <!-- LOMPAT KE MENIT TERTENTU -->
+    <div class="section">
+        <div class="section-title">⏱ LOMPAT KE MENIT</div>
+        <div class="jump-row">
+            <button type="button" id="back10" title="Mundur 10 detik">−10s</button>
+            <input type="text" id="jumpInput" placeholder="2.00 atau 5:56"
+                   autocomplete="off" autocapitalize="off" spellcheck="false">
+            <button type="button" class="jump-go" id="jumpBtn">GO</button>
+            <button type="button" id="fwd10" title="Maju 10 detik">+10s</button>
+        </div>
+        <div class="jump-hint" id="jumpHint">Format: menit.detik (2.00) atau jam:menit:detik (1:02:30)</div>
     </div>
 
     <div class="section">
         <div class="section-title">⚡ PLAYBACK SPEED</div>
         <div class="speed-grid" id="speedGrid"></div>
-        <div class="speed-info" id="speedInfo">
-            Current Speed: 1.00x
-        </div>
+        <div class="speed-info" id="speedInfo">Current Speed: 1.00x</div>
     </div>
 
     <div class="section volume">
         <label>🔊 AUDIO VOLUME</label>
-        <input type="range" id="volume"
-               min="0" max="1" step="0.01" value="0.8">
+        <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8">
     </div>
 
-    <label class="upload" for="fileInput">
-        ＋ ADD MUSIC FROM DEVICE
-    </label>
+    <button class="scan-btn" id="rescanBtn" type="button">↻ SCAN ULANG MUSIK DI REPO</button>
+    <div class="scan-info" id="scanInfo">Menyiapkan scan...</div>
 
-    <input type="file" id="fileInput"
-           accept="audio/*" multiple>
+    <div class="upload-row">
+        <label class="upload" for="fileInput">＋ TAMBAH FILE</label>
+        <label class="upload" for="folderInput">📁 SCAN FOLDER</label>
+    </div>
+
+    <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.opus,.weba" multiple>
+    <input type="file" id="folderInput" webkitdirectory multiple>
+
+    <div style="height:14px"></div>
 
     <div class="playlist-header">
         <strong>YOUR PLAYLIST</strong>
         <span id="songCount">0 TRACKS</span>
     </div>
 
-    <div id="playlist">
-        <div class="empty">
-            ♫<br><br>
-            Your playlist is empty.<br>
-            Add your favorite music.
-        </div>
-    </div>
+    <div id="playlist"></div>
 
-    <div class="footer">
-        NOVA PLAYER • MIDNIGHT EDITION
-    </div>
+    <div class="footer">NOVA PLAYER • MIDNIGHT EDITION</div>
 
 </div>
 
 <script>
+/* =====================================================
+   KONFIGURASI (opsional - biasanya tidak perlu diubah)
+   Kosongkan = deteksi otomatis dari alamat GitHub Pages
+   ===================================================== */
+const CONFIG = {
+    owner: "",      // contoh: "budi"
+    repo: "",       // contoh: "nova-player"
+    branch: "",     // kosong = branch utama
+    manifest: "lagu.json",              // opsional: daftar lagu manual
+    localFolders: ["", "music", "musik", "lagu", "audio", "songs"], // untuk server lokal
+    fallbackFile: "./lagu.mp3"
+};
+
+const AUDIO_EXT = [
+    "mp3", "wav", "ogg", "oga", "m4a", "aac", "flac",
+    "opus", "weba", "webm", "mp4", "3gp", "amr", "aiff", "aif"
+];
+
 const audio = document.getElementById("audio");
 const playBtn = document.getElementById("playBtn");
 const progress = document.getElementById("progress");
 const volume = document.getElementById("volume");
 const fileInput = document.getElementById("fileInput");
+const folderInput = document.getElementById("folderInput");
+const scanInfo = document.getElementById("scanInfo");
+const jumpInput = document.getElementById("jumpInput");
+const jumpHint = document.getElementById("jumpHint");
 
-let songs = [];
+let songs = [];            // {name, url, source: "repo" | "local"}
 let currentIndex = -1;
 let currentSpeed = 1;
+let pendingSeek = null;    // detik yang menunggu metadata selesai dimuat
+let scanning = false;
 
-// MUSIK OTOMATIS DARI REPOSITORY
-const defaultSongs = [
-    {
-        name: "Lagu Saya",
-        url: "./lagu.mp3"
-    }
-];
+const speeds = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3];
 
-songs.push(...defaultSongs);
-
-const speeds = [
-    1, 1.25, 1.5, 1.75, 2,
-    2.25, 2.5, 2.75, 3
-];
-
-// FORMAT WAKTU
+/* ================= UTIL ================= */
 function formatTime(seconds) {
-    if (!Number.isFinite(seconds)) return "0:00";
-
-    const min = Math.floor(seconds / 60);
-    const sec = Math.floor(seconds % 60);
-
-    return min + ":" + String(sec).padStart(2, "0");
+    if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
+    const total = Math.floor(seconds);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    if (h > 0) {
+        return h + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+    }
+    return m + ":" + String(s).padStart(2, "0");
 }
 
-// SPEED BUTTONS
+function getExt(path) {
+    const clean = String(path).split("?")[0].split("#")[0];
+    const i = clean.lastIndexOf(".");
+    return i === -1 ? "" : clean.slice(i + 1).toLowerCase();
+}
+
+function isAudioPath(path) {
+    return AUDIO_EXT.includes(getExt(path));
+}
+
+function prettyName(path) {
+    let base = String(path).split("?")[0].split("/").pop();
+    try { base = decodeURIComponent(base); } catch (e) {}
+    return base.replace(/\.[^/.]+$/, "").replace(/[_]+/g, " ").trim() || "Untitled";
+}
+
+function encodePath(path) {
+    return path.split("/").map(encodeURIComponent).join("/");
+}
+
+function setScanInfo(text) {
+    scanInfo.textContent = text;
+}
+
+/* ================= SPEED ================= */
 function createSpeedButtons() {
     const grid = document.getElementById("speedGrid");
 
     speeds.forEach(value => {
         const btn = document.createElement("button");
-
-        btn.className =
-            "speed-btn" + (value === 1 ? " active" : "");
-
+        btn.className = "speed-btn" + (value === 1 ? " active" : "");
         btn.textContent = value + "x";
         btn.dataset.speed = value;
-
         btn.onclick = () => setSpeed(value);
-
         grid.appendChild(btn);
     });
 }
 
 function setSpeed(value) {
     currentSpeed = value;
+    audio.defaultPlaybackRate = value;
     audio.playbackRate = value;
 
     document.querySelectorAll(".speed-btn").forEach(btn => {
-        btn.classList.toggle(
-            "active",
-            Number(btn.dataset.speed) === value
-        );
+        btn.classList.toggle("active", Number(btn.dataset.speed) === value);
     });
 
     document.getElementById("speedInfo").textContent =
         "Current Speed: " + value.toFixed(2) + "x";
 }
 
-// PLAYLIST
+/* ================= PLAYLIST ================= */
 function renderPlaylist() {
     const playlist = document.getElementById("playlist");
-
     playlist.innerHTML = "";
 
-    document.getElementById("songCount").textContent =
-        songs.length + " TRACKS";
+    document.getElementById("songCount").textContent = songs.length + " TRACKS";
+
+    if (!songs.length) {
+        playlist.innerHTML =
+            '<div class="empty">♫<br>Playlist masih kosong.<br>' +
+            'Letakkan file musik di repo lalu tekan SCAN ULANG,<br>' +
+            'atau tambahkan dari perangkat.</div>';
+        return;
+    }
 
     songs.forEach((song, index) => {
         const track = document.createElement("div");
-
-        track.className =
-            "track" + (index === currentIndex ? " active" : "");
+        track.className = "track" + (index === currentIndex ? " active" : "");
 
         const icon = document.createElement("div");
         icon.className = "track-icon";
@@ -538,40 +643,27 @@ function renderPlaylist() {
 
         const number = document.createElement("div");
         number.className = "track-number";
-        number.textContent =
-            index === currentIndex
-                ? "PLAYING"
-                : String(index + 1).padStart(2, "0");
+        number.textContent = index === currentIndex ? "PLAYING" : String(index + 1).padStart(2, "0");
 
         track.append(icon, name, number);
-
-        track.addEventListener("click", () => {
-            loadSong(index);
-        });
-
+        track.addEventListener("click", () => loadSong(index));
         playlist.appendChild(track);
     });
-
-    if (!songs.length) {
-        playlist.innerHTML =
-            '<div class="empty">Your playlist is empty.</div>';
-    }
 }
 
-// LOAD SONG
 function loadSong(index, autoplay = true) {
     if (index < 0 || index >= songs.length) return;
 
     currentIndex = index;
+    pendingSeek = null;
 
     audio.src = songs[index].url;
+    audio.defaultPlaybackRate = currentSpeed;
     audio.playbackRate = currentSpeed;
 
-    document.getElementById("songName").textContent =
-        songs[index].name;
-
+    document.getElementById("songName").textContent = songs[index].name;
     document.getElementById("artist").textContent =
-        "Local Audio • NOVA Player";
+        (songs[index].source === "repo" ? "Repository" : "Local Audio") + " • NOVA Player";
 
     document.getElementById("currentTime").textContent = "0:00";
     document.getElementById("duration").textContent = "0:00";
@@ -580,13 +672,11 @@ function loadSong(index, autoplay = true) {
     renderPlaylist();
 
     if (autoplay) {
-        audio.play().catch(() => {
-            playBtn.textContent = "▶";
-        });
+        audio.play().catch(() => { playBtn.textContent = "▶"; });
     }
 }
 
-// PLAY / PAUSE
+/* ================= KONTROL ================= */
 function togglePlay() {
     if (currentIndex === -1) {
         if (songs.length) {
@@ -599,12 +689,26 @@ function togglePlay() {
 
     if (audio.paused) {
         audio.play().catch(() => {
-            document.getElementById("status").textContent =
-                "● ERROR";
+            document.getElementById("status").textContent = "● ERROR";
         });
     } else {
         audio.pause();
     }
+}
+
+function nextSong() {
+    if (!songs.length) return;
+    loadSong((currentIndex + 1) % songs.length);
+}
+
+function previousSong() {
+    if (!songs.length) return;
+
+    if (audio.currentTime > 3) {
+        audio.currentTime = 0;
+        return;
+    }
+    loadSong((currentIndex - 1 + songs.length) % songs.length);
 }
 
 audio.addEventListener("play", () => {
@@ -621,72 +725,312 @@ audio.addEventListener("error", () => {
     document.getElementById("status").textContent = "● AUDIO ERROR";
 });
 
-// NEXT / PREVIOUS
-function nextSong() {
-    if (!songs.length) return;
-
-    loadSong((currentIndex + 1) % songs.length);
-}
-
-function previousSong() {
-    if (!songs.length) return;
-
-    if (audio.currentTime > 3) {
-        audio.currentTime = 0;
-        return;
-    }
-
-    loadSong(
-        (currentIndex - 1 + songs.length) % songs.length
-    );
-}
-
 audio.addEventListener("ended", nextSong);
 
-// PROGRESS
 audio.addEventListener("loadedmetadata", () => {
-    document.getElementById("duration").textContent =
-        formatTime(audio.duration);
+    document.getElementById("duration").textContent = formatTime(audio.duration);
+
+    if (pendingSeek !== null) {
+        const t = pendingSeek;
+        pendingSeek = null;
+        applySeek(t, true);
+    }
 });
 
 audio.addEventListener("timeupdate", () => {
     if (!audio.duration) return;
 
-    progress.value =
-        (audio.currentTime / audio.duration) * 100;
-
-    document.getElementById("currentTime").textContent =
-        formatTime(audio.currentTime);
-
-    document.getElementById("duration").textContent =
-        formatTime(audio.duration);
+    progress.value = (audio.currentTime / audio.duration) * 100;
+    document.getElementById("currentTime").textContent = formatTime(audio.currentTime);
+    document.getElementById("duration").textContent = formatTime(audio.duration);
 });
 
 progress.addEventListener("input", () => {
     if (audio.duration) {
-        audio.currentTime =
-            (progress.value / 100) * audio.duration;
+        audio.currentTime = (progress.value / 100) * audio.duration;
     }
 });
 
-// VOLUME
 volume.addEventListener("input", () => {
     audio.volume = Number(volume.value);
 });
-
 audio.volume = 0.8;
 
-// UPLOAD MUSIC DARI PERANGKAT
-fileInput.addEventListener("change", event => {
-    const files = Array.from(event.target.files);
+/* ================= LOMPAT KE MENIT ================= */
+// Menerima: "2.00" "5.56" "5:56" "1:02:30" "90" (detik)
+function parseTime(input) {
+    let s = String(input).trim().replace(",", ".").replace(/\./g, ":");
+    if (!/^\d+(:\d{1,2}){0,2}$/.test(s)) return null;
 
+    const p = s.split(":").map(Number);
+    let h = 0, m = 0, sec = 0;
+
+    if (p.length === 1) {
+        sec = p[0];
+    } else if (p.length === 2) {
+        [m, sec] = p;
+        if (sec > 59) return null;
+    } else {
+        [h, m, sec] = p;
+        if (sec > 59 || m > 59) return null;
+    }
+    return h * 3600 + m * 60 + sec;
+}
+
+function setJumpHint(text, type) {
+    jumpHint.textContent = text;
+    jumpHint.className = "jump-hint" + (type ? " " + type : "");
+}
+
+function applySeek(seconds, fromPending) {
+    if (Number.isFinite(audio.duration) && seconds > audio.duration) {
+        setJumpHint("Melebihi durasi lagu (" + formatTime(audio.duration) + ")", "err");
+        return false;
+    }
+    audio.currentTime = seconds;
+    setJumpHint("Lompat ke " + formatTime(seconds), "ok");
+    audio.play().catch(() => {});
+    return true;
+}
+
+function jumpToTime() {
+    const seconds = parseTime(jumpInput.value);
+
+    if (seconds === null) {
+        setJumpHint("Format salah. Contoh: 2.00, 5:56, atau 1:02:30", "err");
+        return;
+    }
+
+    if (currentIndex === -1) {
+        if (!songs.length) {
+            setJumpHint("Belum ada lagu untuk diputar", "err");
+            return;
+        }
+        pendingSeek = seconds;
+        loadSong(0, false);
+        setJumpHint("Memuat lagu...", "ok");
+        return;
+    }
+
+    if (audio.readyState < 1) {
+        pendingSeek = seconds;
+        setJumpHint("Memuat lagu...", "ok");
+        return;
+    }
+
+    applySeek(seconds);
+}
+
+function skipBy(delta) {
+    if (currentIndex === -1 || !Number.isFinite(audio.duration)) return;
+    audio.currentTime = Math.min(Math.max(0, audio.currentTime + delta), audio.duration);
+}
+
+document.getElementById("jumpBtn").addEventListener("click", jumpToTime);
+document.getElementById("back10").addEventListener("click", () => skipBy(-10));
+document.getElementById("fwd10").addEventListener("click", () => skipBy(10));
+jumpInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        jumpToTime();
+    }
+});
+
+/* ================= SCAN OTOMATIS MUSIK ================= */
+function detectRepo() {
+    const host = location.hostname;
+    const parts = location.pathname.split("/").filter(Boolean);
+    let owner = CONFIG.owner;
+    let repo = CONFIG.repo;
+    let base = "";
+
+    if (host.endsWith(".github.io")) {
+        if (!owner) owner = host.split(".")[0];
+
+        const first = parts[0];
+        const projectPage = first && !first.includes(".");
+
+        if (!repo) repo = projectPage ? first : owner + ".github.io";
+        base = location.origin + "/" + (projectPage ? first + "/" : "");
+    } else {
+        if (!owner || !repo) return null;
+        base = new URL("./", location.href).href;
+    }
+
+    return { owner, repo, branch: CONFIG.branch, base };
+}
+
+// 1) Daftar manual (lagu.json) - opsional
+async function scanManifest() {
+    try {
+        const res = await fetch(CONFIG.manifest, { cache: "no-store" });
+        if (!res.ok) return [];
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : (data.songs || []);
+
+        return list.map(item => {
+            if (typeof item === "string") {
+                return { name: prettyName(item), url: new URL(item, location.href).href, source: "repo" };
+            }
+            const url = item.url || item.file || item.src;
+            if (!url) return null;
+            return {
+                name: item.name || item.title || prettyName(url),
+                url: new URL(url, location.href).href,
+                source: "repo"
+            };
+        }).filter(Boolean);
+    } catch (e) {
+        return [];
+    }
+}
+
+// 2) GitHub API: baca seluruh isi repo sekaligus (1 request)
+async function scanGithub() {
+    const info = detectRepo();
+    if (!info) return [];
+
+    const ref = info.branch || "HEAD";
+    const api = "https://api.github.com/repos/" + info.owner + "/" + info.repo +
+                "/git/trees/" + encodeURIComponent(ref) + "?recursive=1";
+
+    const res = await fetch(api, { headers: { "Accept": "application/vnd.github+json" } });
+    if (!res.ok) throw new Error("GitHub API " + res.status);
+
+    const data = await res.json();
+    return (data.tree || [])
+        .filter(item => item.type === "blob" && isAudioPath(item.path))
+        .map(item => ({
+            name: prettyName(item.path),
+            url: info.base + encodePath(item.path),
+            source: "repo"
+        }));
+}
+
+// 3) Server lokal (Live Server, http.server, dll) - baca halaman index folder
+async function scanDirectories() {
+    const found = [];
+
+    for (const folder of CONFIG.localFolders) {
+        const dirUrl = new URL(folder ? folder + "/" : "./", location.href).href;
+        try {
+            const res = await fetch(dirUrl, { cache: "no-store" });
+            if (!res.ok) continue;
+            if (!(res.headers.get("content-type") || "").includes("text/html")) continue;
+
+            const doc = new DOMParser().parseFromString(await res.text(), "text/html");
+            doc.querySelectorAll("a[href]").forEach(a => {
+                const href = a.getAttribute("href");
+                if (!href || !isAudioPath(href)) return;
+                const url = new URL(href, res.url).href;
+                found.push({ name: prettyName(href), url, source: "repo" });
+            });
+        } catch (e) { /* abaikan */ }
+    }
+    return found;
+}
+
+// 4) Cadangan: file lagu.mp3 bawaan
+async function scanFallback() {
+    try {
+        const res = await fetch(CONFIG.fallbackFile, { method: "HEAD", cache: "no-store" });
+        if (res.ok) {
+            return [{ name: prettyName(CONFIG.fallbackFile), url: new URL(CONFIG.fallbackFile, location.href).href, source: "repo" }];
+        }
+    } catch (e) {}
+    return [];
+}
+
+function dedupe(list) {
+    const seen = new Set();
+    return list.filter(s => {
+        if (seen.has(s.url)) return false;
+        seen.add(s.url);
+        return true;
+    });
+}
+
+async function scanRepoMusic() {
+    if (scanning) return;
+    scanning = true;
+
+    const btn = document.getElementById("rescanBtn");
+    btn.disabled = true;
+    setScanInfo("⏳ Memindai file musik...");
+
+    if (location.protocol === "file:") {
+        setScanInfo("Halaman dibuka dari file lokal, scan repo tidak bisa. Gunakan SCAN FOLDER atau buka lewat GitHub Pages / server lokal.");
+        btn.disabled = false;
+        scanning = false;
+        renderPlaylist();
+        return;
+    }
+
+    let result = [];
+    let githubError = "";
+
+    result.push(...await scanManifest());
+
+    try {
+        result.push(...await scanGithub());
+    } catch (e) {
+        githubError = e.message;
+    }
+
+    if (!location.hostname.endsWith(".github.io")) {
+        result.push(...await scanDirectories());
+    }
+
+    if (!result.length) {
+        result.push(...await scanFallback());
+    }
+
+    result = dedupe(result).sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" })
+    );
+
+    // pertahankan lagu yang sedang diputar & lagu dari perangkat
+    const currentUrl = currentIndex >= 0 ? songs[currentIndex]?.url : null;
+    const locals = songs.filter(s => s.source === "local");
+    songs = [...result, ...locals];
+    currentIndex = currentUrl ? songs.findIndex(s => s.url === currentUrl) : -1;
+
+    if (currentIndex === -1 && songs.length && !audio.src) {
+        loadSong(0, false);
+    } else {
+        renderPlaylist();
+    }
+
+    if (result.length) {
+        setScanInfo("✓ " + result.length + " lagu ditemukan di repo");
+    } else if (githubError) {
+        setScanInfo("Tidak ada musik ditemukan (" + githubError + "). Pastikan repo public dan file musik sudah di-commit.");
+    } else {
+        setScanInfo("Tidak ada file musik ditemukan di repo.");
+    }
+
+    btn.disabled = false;
+    scanning = false;
+}
+
+/* ================= TAMBAH DARI PERANGKAT ================= */
+function addLocalFiles(fileList) {
+    const files = Array.from(fileList).filter(f =>
+        (f.type && f.type.startsWith("audio/")) || isAudioPath(f.name)
+    );
+
+    let added = 0;
     files.forEach(file => {
-        if (!file.type.startsWith("audio/")) return;
+        const dup = songs.some(s => s.source === "local" && s.name === prettyName(file.name) && s.size === file.size);
+        if (dup) return;
 
         songs.push({
-            name: file.name.replace(/\.[^/.]+$/, ""),
-            url: URL.createObjectURL(file)
+            name: prettyName(file.name),
+            url: URL.createObjectURL(file),
+            source: "local",
+            size: file.size
         });
+        added++;
     });
 
     if (currentIndex === -1 && songs.length) {
@@ -695,16 +1039,27 @@ fileInput.addEventListener("change", event => {
         renderPlaylist();
     }
 
+    setScanInfo(added
+        ? "✓ " + added + " lagu ditambahkan dari perangkat"
+        : "Tidak ada file audio yang cocok.");
+}
+
+fileInput.addEventListener("change", e => {
+    addLocalFiles(e.target.files);
     fileInput.value = "";
 });
 
-// INISIALISASI PLAYER
+folderInput.addEventListener("change", e => {
+    addLocalFiles(e.target.files);
+    folderInput.value = "";
+});
+
+document.getElementById("rescanBtn").addEventListener("click", scanRepoMusic);
+
+/* ================= INISIALISASI ================= */
 createSpeedButtons();
 renderPlaylist();
-
-if (songs.length > 0) {
-    loadSong(0, false);
-}
+scanRepoMusic();
 </script>
 
 </body>
