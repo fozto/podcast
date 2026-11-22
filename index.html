@@ -1,0 +1,675 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#071426">
+<title>NOVA PLAYER | Midnight Edition</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 50% 0%, #163963 0%, transparent 40%),
+        #050D19;
+    color: #EAF3FF;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 25px 15px;
+}
+
+.player {
+    width: 100%;
+    max-width: 440px;
+    background: linear-gradient(145deg, #10243D, #091629);
+    border: 1px solid #234263;
+    border-radius: 25px;
+    padding: 24px;
+    box-shadow: 0 20px 70px #0009;
+    height: fit-content;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.logo {
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: #F1F7FF;
+}
+
+.logo span {
+    color: #4DA3FF;
+}
+
+.subtitle {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #6687AC;
+    margin-top: 4px;
+}
+
+.status {
+    font-size: 10px;
+    color: #55B6FF;
+    background: #102F50;
+    border: 1px solid #24517C;
+    padding: 7px 10px;
+    border-radius: 20px;
+}
+
+.cover {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-height: 280px;
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at center, #2468A5, transparent 40%),
+        linear-gradient(145deg, #102B4A, #071426);
+    border: 1px solid #294E75;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+
+.cover::before,
+.cover::after {
+    content: "";
+    position: absolute;
+    border: 1px solid #4DA3FF30;
+    border-radius: 50%;
+    width: 220px;
+    height: 220px;
+}
+
+.cover::after {
+    width: 300px;
+    height: 300px;
+}
+
+.cover-icon {
+    font-size: 75px;
+    color: #71B8FF;
+    text-shadow: 0 0 35px #3289E9;
+    z-index: 1;
+}
+
+.cover-title {
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 5px;
+    margin-top: 15px;
+    z-index: 1;
+}
+
+.cover-subtitle {
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: #779DC4;
+    margin-top: 8px;
+    z-index: 1;
+}
+
+.song-info {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.song-info h2 {
+    font-size: 21px;
+    margin-bottom: 7px;
+    overflow-wrap: anywhere;
+}
+
+.song-info p {
+    color: #7897B8;
+    font-size: 13px;
+}
+
+.time {
+    display: flex;
+    justify-content: space-between;
+    color: #7997B7;
+    font-size: 11px;
+    margin-bottom: 10px;
+}
+
+input[type="range"] {
+    width: 100%;
+    accent-color: #4DA3FF;
+    cursor: pointer;
+}
+
+.progress {
+    margin-bottom: 25px;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 27px;
+}
+
+.controls button {
+    background: transparent;
+    border: none;
+    color: #AFC9E6;
+    font-size: 25px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.controls button:hover {
+    color: #55A9FF;
+    transform: scale(1.1);
+}
+
+.controls .play {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    color: white;
+    font-size: 26px;
+    background: linear-gradient(135deg, #56B1FF, #2474D0);
+    box-shadow: 0 0 25px #3289E966;
+}
+
+.section {
+    background: #0A1B30;
+    border: 1px solid #1C3B5D;
+    padding: 16px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+
+.section-title {
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: #A8C6E8;
+    margin-bottom: 13px;
+}
+
+.speed-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 7px;
+}
+
+.speed-btn {
+    background: #142A44;
+    border: 1px solid #244362;
+    color: #A9C2DE;
+    padding: 10px 2px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: .2s;
+}
+
+.speed-btn:hover {
+    border-color: #4DA3FF;
+}
+
+.speed-btn.active {
+    background: linear-gradient(135deg, #3289E9, #185AA6);
+    color: white;
+    border-color: #62B5FF;
+    box-shadow: 0 0 12px #3289E955;
+}
+
+.speed-info {
+    text-align: center;
+    font-size: 12px;
+    color: #5BAEFF;
+    margin-top: 12px;
+}
+
+.volume {
+    margin-top: 5px;
+}
+
+.volume label {
+    display: block;
+    color: #A8C6E8;
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+.upload {
+    display: block;
+    text-align: center;
+    padding: 15px;
+    border: 1px dashed #3986C8;
+    color: #70B8FF;
+    border-radius: 12px;
+    background: #102844;
+    cursor: pointer;
+    font-size: 13px;
+    margin-bottom: 23px;
+    transition: .2s;
+}
+
+.upload:hover {
+    background: #183B61;
+}
+
+#fileInput {
+    display: none;
+}
+
+.playlist-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 13px;
+    font-size: 12px;
+    color: #C3D8EF;
+}
+
+.playlist-header span {
+    color: #5CAFFF;
+}
+
+.track {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #0B1C30;
+    border: 1px solid #1A3552;
+    border-radius: 11px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.track:hover {
+    background: #142D49;
+}
+
+.track.active {
+    border-color: #378DDC;
+    background: #112B49;
+}
+
+.track-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: #173B60;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #68B3FF;
+}
+
+.track-name {
+    flex: 1;
+    font-size: 12px;
+    color: #DCEBFA;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.track-number {
+    color: #6691B9;
+    font-size: 11px;
+}
+
+.empty {
+    text-align: center;
+    padding: 20px 5px;
+    font-size: 12px;
+    color: #6886A7;
+}
+
+.footer {
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #446486;
+    margin-top: 25px;
+}
+
+@media(max-width: 360px) {
+    .player {
+        padding: 17px;
+    }
+    .speed-btn {
+        font-size: 10px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="player">
+
+    <div class="header">
+        <div>
+            <div class="logo">NOVA<span>.</span></div>
+            <div class="subtitle">MIDNIGHT AUDIO EXPERIENCE</div>
+        </div>
+        <div class="status">● READY</div>
+    </div>
+
+    <div class="cover">
+        <div class="cover-icon">◈</div>
+        <div class="cover-title">MIDNIGHT</div>
+        <div class="cover-subtitle">SOUND BEYOND LIMITS</div>
+    </div>
+
+    <div class="song-info">
+        <h2 id="songName">Welcome to NOVA</h2>
+        <p id="artist">Choose your favorite music</p>
+    </div>
+
+    <audio id="audio"></audio>
+
+    <div class="progress">
+        <div class="time">
+            <span id="currentTime">0:00</span>
+            <span id="duration">0:00</span>
+        </div>
+        <input type="range" id="progress" min="0" max="100" value="0">
+    </div>
+
+    <div class="controls">
+        <button onclick="previousSong()" title="Previous">|◀</button>
+        <button class="play" id="playBtn" onclick="togglePlay()">▶</button>
+        <button onclick="nextSong()" title="Next">▶|</button>
+    </div>
+
+    <div class="section">
+        <div class="section-title">⚡ PLAYBACK SPEED</div>
+
+        <div class="speed-grid" id="speedGrid"></div>
+
+        <div class="speed-info" id="speedInfo">
+            Current Speed: 1.00x
+        </div>
+    </div>
+
+    <div class="section volume">
+        <label>🔊 AUDIO VOLUME</label>
+        <input type="range" id="volume"
+               min="0" max="1" step="0.01" value="0.8">
+    </div>
+
+    <label class="upload" for="fileInput">
+        ＋ ADD MUSIC FROM DEVICE
+    </label>
+
+    <input type="file" id="fileInput"
+           accept="audio/*" multiple>
+
+    <div class="playlist-header">
+        <strong>YOUR PLAYLIST</strong>
+        <span id="songCount">0 TRACKS</span>
+    </div>
+
+    <div id="playlist">
+        <div class="empty">
+            ♫<br><br>
+            Your playlist is empty.<br>
+            Add your favorite music.
+        </div>
+    </div>
+
+    <div class="footer">
+        NOVA PLAYER • MIDNIGHT EDITION
+    </div>
+
+</div>
+
+<script>
+const audio = document.getElementById("audio");
+const playBtn = document.getElementById("playBtn");
+const progress = document.getElementById("progress");
+const volume = document.getElementById("volume");
+const fileInput = document.getElementById("fileInput");
+
+let songs = [];
+let currentIndex = -1;
+let currentSpeed = 1;
+
+const speeds = [
+    1, 1.25, 1.5, 1.75, 2,
+    2.25, 2.5, 2.75, 3
+];
+
+// FORMAT WAKTU
+function formatTime(seconds) {
+    if (!Number.isFinite(seconds)) return "0:00";
+
+    let min = Math.floor(seconds / 60);
+    let sec = Math.floor(seconds % 60);
+
+    return min + ":" + String(sec).padStart(2, "0");
+}
+
+// SPEED BUTTONS
+function createSpeedButtons() {
+    const grid = document.getElementById("speedGrid");
+
+    speeds.forEach(value => {
+        const btn = document.createElement("button");
+
+        btn.className =
+            "speed-btn" + (value === 1 ? " active" : "");
+
+        btn.textContent = value + "x";
+
+        btn.onclick = () => setSpeed(value);
+
+        btn.dataset.speed = value;
+
+        grid.appendChild(btn);
+    });
+}
+
+function setSpeed(value) {
+    currentSpeed = value;
+    audio.playbackRate = value;
+
+    document.querySelectorAll(".speed-btn").forEach(btn => {
+        btn.classList.toggle(
+            "active",
+            Number(btn.dataset.speed) === value
+        );
+    });
+
+    document.getElementById("speedInfo").textContent =
+        "Current Speed: " + value.toFixed(2) + "x";
+}
+
+// LOAD SONG
+function loadSong(index, autoplay = true) {
+    if (index < 0 || index >= songs.length) return;
+
+    currentIndex = index;
+
+    audio.src = songs[index].url;
+    audio.playbackRate = currentSpeed;
+
+    document.getElementById("songName").textContent =
+        songs[index].name;
+
+    document.getElementById("artist").textContent =
+        "Local Audio • NOVA Player";
+
+    renderPlaylist();
+
+    if (autoplay) {
+        audio.play().catch(() => {
+            playBtn.textContent = "▶";
+        });
+    }
+}
+
+// PLAY / PAUSE
+function togglePlay() {
+    if (currentIndex === -1) {
+        if (songs.length) {
+            loadSong(0);
+        } else {
+            alert("Tambahkan musik terlebih dahulu!");
+        }
+        return;
+    }
+
+    if (audio.paused) {
+        audio.play().catch(() => {});
+    } else {
+        audio.pause();
+    }
+}
+
+audio.addEventListener("play", () => {
+    playBtn.textContent = "Ⅱ";
+});
+
+audio.addEventListener("pause", () => {
+    playBtn.textContent = "▶";
+});
+
+// NEXT / PREVIOUS
+function nextSong() {
+    if (!songs.length) return;
+
+    loadSong((currentIndex + 1) % songs.length);
+}
+
+function previousSong() {
+    if (!songs.length) return;
+
+    if (audio.currentTime > 3) {
+        audio.currentTime = 0;
+        return;
+    }
+
+    loadSong(
+        (currentIndex - 1 + songs.length) % songs.length
+    );
+}
+
+audio.addEventListener("ended", nextSong);
+
+// PROGRESS
+audio.addEventListener("timeupdate", () => {
+    if (!audio.duration) return;
+
+    progress.value =
+        (audio.currentTime / audio.duration) * 100;
+
+    document.getElementById("currentTime").textContent =
+        formatTime(audio.currentTime);
+
+    document.getElementById("duration").textContent =
+        formatTime(audio.duration);
+});
+
+progress.addEventListener("input", () => {
+    if (audio.duration) {
+        audio.currentTime =
+            (progress.value / 100) * audio.duration;
+    }
+});
+
+// VOLUME
+volume.addEventListener("input", () => {
+    audio.volume = Number(volume.value);
+});
+
+audio.volume = 0.8;
+
+// UPLOAD MUSIC
+fileInput.addEventListener("change", event => {
+    const files = Array.from(event.target.files);
+
+    files.forEach(file => {
+        if (!file.type.startsWith("audio/")) return;
+
+        songs.push({
+            name: file.name.replace(/\.[^/.]+$/, ""),
+            url: URL.createObjectURL(file)
+        });
+    });
+
+    if (currentIndex === -1 && songs.length) {
+        loadSong(0, false);
+    }
+
+    renderPlaylist();
+
+    fileInput.value = "";
+});
+
+// PLAYLIST
+function renderPlaylist() {
+    const playlist = document.getElementById("playlist");
+
+    playlist.innerHTML = "";
+
+    document.getElementById("songCount").textContent =
+        songs.length + " TRACKS";
+
+    songs.forEach((song, index) => {
+        const track = document.createElement("div");
+
+        track.className =
+            "track" + (index === currentIndex ? " active" : "");
+
+        const icon = document.createElement("div");
+        icon.className = "track-icon";
+        icon.textContent = "♫";
+
+        const name = document.createElement("div");
+        name.className = "track-name";
+        name.textContent = song.name;
+
+        const number = document.createElement("div");
+        number.className = "track-number";
+        number.textContent =
+            index === currentIndex ? "PLAYING" : "0" + (index + 1);
+
+        track.append(icon, name, number);
+
+        track.addEventListener("click", () => {
+            loadSong(index);
+        });
+
+        playlist.appendChild(track);
+    });
+
+    if (!songs.length) {
+        playlist.innerHTML =
+            '<div class="empty">Your playlist is empty.</div>';
+    }
+}
+
+createSpeedButtons();
+</script>
+
+</body>
+</html>
