@@ -354,6 +354,7 @@ input[type="range"] {
     .player {
         padding: 17px;
     }
+
     .speed-btn {
         font-size: 10px;
     }
@@ -370,7 +371,7 @@ input[type="range"] {
             <div class="logo">NOVA<span>.</span></div>
             <div class="subtitle">MIDNIGHT AUDIO EXPERIENCE</div>
         </div>
-        <div class="status">● READY</div>
+        <div class="status" id="status">● READY</div>
     </div>
 
     <div class="cover">
@@ -384,27 +385,27 @@ input[type="range"] {
         <p id="artist">Choose your favorite music</p>
     </div>
 
-    <audio id="audio"></audio>
+    <audio id="audio" preload="metadata"></audio>
 
     <div class="progress">
         <div class="time">
             <span id="currentTime">0:00</span>
             <span id="duration">0:00</span>
         </div>
-        <input type="range" id="progress" min="0" max="100" value="0">
+        <input type="range" id="progress"
+               min="0" max="100" value="0">
     </div>
 
     <div class="controls">
         <button onclick="previousSong()" title="Previous">|◀</button>
-        <button class="play" id="playBtn" onclick="togglePlay()">▶</button>
+        <button class="play" id="playBtn"
+                onclick="togglePlay()">▶</button>
         <button onclick="nextSong()" title="Next">▶|</button>
     </div>
 
     <div class="section">
         <div class="section-title">⚡ PLAYBACK SPEED</div>
-
         <div class="speed-grid" id="speedGrid"></div>
-
         <div class="speed-info" id="speedInfo">
             Current Speed: 1.00x
         </div>
@@ -453,6 +454,16 @@ let songs = [];
 let currentIndex = -1;
 let currentSpeed = 1;
 
+// MUSIK OTOMATIS DARI REPOSITORY
+const defaultSongs = [
+    {
+        name: "Lagu Saya",
+        url: "./lagu.mp3"
+    }
+];
+
+songs.push(...defaultSongs);
+
 const speeds = [
     1, 1.25, 1.5, 1.75, 2,
     2.25, 2.5, 2.75, 3
@@ -462,8 +473,8 @@ const speeds = [
 function formatTime(seconds) {
     if (!Number.isFinite(seconds)) return "0:00";
 
-    let min = Math.floor(seconds / 60);
-    let sec = Math.floor(seconds % 60);
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
 
     return min + ":" + String(sec).padStart(2, "0");
 }
@@ -479,10 +490,9 @@ function createSpeedButtons() {
             "speed-btn" + (value === 1 ? " active" : "");
 
         btn.textContent = value + "x";
+        btn.dataset.speed = value;
 
         btn.onclick = () => setSpeed(value);
-
-        btn.dataset.speed = value;
 
         grid.appendChild(btn);
     });
@@ -502,128 +512,6 @@ function setSpeed(value) {
     document.getElementById("speedInfo").textContent =
         "Current Speed: " + value.toFixed(2) + "x";
 }
-
-// LOAD SONG
-function loadSong(index, autoplay = true) {
-    if (index < 0 || index >= songs.length) return;
-
-    currentIndex = index;
-
-    audio.src = songs[index].url;
-    audio.playbackRate = currentSpeed;
-
-    document.getElementById("songName").textContent =
-        songs[index].name;
-
-    document.getElementById("artist").textContent =
-        "Local Audio • NOVA Player";
-
-    renderPlaylist();
-
-    if (autoplay) {
-        audio.play().catch(() => {
-            playBtn.textContent = "▶";
-        });
-    }
-}
-
-// PLAY / PAUSE
-function togglePlay() {
-    if (currentIndex === -1) {
-        if (songs.length) {
-            loadSong(0);
-        } else {
-            alert("Tambahkan musik terlebih dahulu!");
-        }
-        return;
-    }
-
-    if (audio.paused) {
-        audio.play().catch(() => {});
-    } else {
-        audio.pause();
-    }
-}
-
-audio.addEventListener("play", () => {
-    playBtn.textContent = "Ⅱ";
-});
-
-audio.addEventListener("pause", () => {
-    playBtn.textContent = "▶";
-});
-
-// NEXT / PREVIOUS
-function nextSong() {
-    if (!songs.length) return;
-
-    loadSong((currentIndex + 1) % songs.length);
-}
-
-function previousSong() {
-    if (!songs.length) return;
-
-    if (audio.currentTime > 3) {
-        audio.currentTime = 0;
-        return;
-    }
-
-    loadSong(
-        (currentIndex - 1 + songs.length) % songs.length
-    );
-}
-
-audio.addEventListener("ended", nextSong);
-
-// PROGRESS
-audio.addEventListener("timeupdate", () => {
-    if (!audio.duration) return;
-
-    progress.value =
-        (audio.currentTime / audio.duration) * 100;
-
-    document.getElementById("currentTime").textContent =
-        formatTime(audio.currentTime);
-
-    document.getElementById("duration").textContent =
-        formatTime(audio.duration);
-});
-
-progress.addEventListener("input", () => {
-    if (audio.duration) {
-        audio.currentTime =
-            (progress.value / 100) * audio.duration;
-    }
-});
-
-// VOLUME
-volume.addEventListener("input", () => {
-    audio.volume = Number(volume.value);
-});
-
-audio.volume = 0.8;
-
-// UPLOAD MUSIC
-fileInput.addEventListener("change", event => {
-    const files = Array.from(event.target.files);
-
-    files.forEach(file => {
-        if (!file.type.startsWith("audio/")) return;
-
-        songs.push({
-            name: file.name.replace(/\.[^/.]+$/, ""),
-            url: URL.createObjectURL(file)
-        });
-    });
-
-    if (currentIndex === -1 && songs.length) {
-        loadSong(0, false);
-    }
-
-    renderPlaylist();
-
-    fileInput.value = "";
-});
 
 // PLAYLIST
 function renderPlaylist() {
@@ -651,7 +539,9 @@ function renderPlaylist() {
         const number = document.createElement("div");
         number.className = "track-number";
         number.textContent =
-            index === currentIndex ? "PLAYING" : "0" + (index + 1);
+            index === currentIndex
+                ? "PLAYING"
+                : String(index + 1).padStart(2, "0");
 
         track.append(icon, name, number);
 
@@ -668,7 +558,153 @@ function renderPlaylist() {
     }
 }
 
+// LOAD SONG
+function loadSong(index, autoplay = true) {
+    if (index < 0 || index >= songs.length) return;
+
+    currentIndex = index;
+
+    audio.src = songs[index].url;
+    audio.playbackRate = currentSpeed;
+
+    document.getElementById("songName").textContent =
+        songs[index].name;
+
+    document.getElementById("artist").textContent =
+        "Local Audio • NOVA Player";
+
+    document.getElementById("currentTime").textContent = "0:00";
+    document.getElementById("duration").textContent = "0:00";
+    progress.value = 0;
+
+    renderPlaylist();
+
+    if (autoplay) {
+        audio.play().catch(() => {
+            playBtn.textContent = "▶";
+        });
+    }
+}
+
+// PLAY / PAUSE
+function togglePlay() {
+    if (currentIndex === -1) {
+        if (songs.length) {
+            loadSong(0);
+        } else {
+            alert("Tambahkan musik terlebih dahulu!");
+        }
+        return;
+    }
+
+    if (audio.paused) {
+        audio.play().catch(() => {
+            document.getElementById("status").textContent =
+                "● ERROR";
+        });
+    } else {
+        audio.pause();
+    }
+}
+
+audio.addEventListener("play", () => {
+    playBtn.textContent = "Ⅱ";
+    document.getElementById("status").textContent = "● PLAYING";
+});
+
+audio.addEventListener("pause", () => {
+    playBtn.textContent = "▶";
+    document.getElementById("status").textContent = "● PAUSED";
+});
+
+audio.addEventListener("error", () => {
+    document.getElementById("status").textContent = "● AUDIO ERROR";
+});
+
+// NEXT / PREVIOUS
+function nextSong() {
+    if (!songs.length) return;
+
+    loadSong((currentIndex + 1) % songs.length);
+}
+
+function previousSong() {
+    if (!songs.length) return;
+
+    if (audio.currentTime > 3) {
+        audio.currentTime = 0;
+        return;
+    }
+
+    loadSong(
+        (currentIndex - 1 + songs.length) % songs.length
+    );
+}
+
+audio.addEventListener("ended", nextSong);
+
+// PROGRESS
+audio.addEventListener("loadedmetadata", () => {
+    document.getElementById("duration").textContent =
+        formatTime(audio.duration);
+});
+
+audio.addEventListener("timeupdate", () => {
+    if (!audio.duration) return;
+
+    progress.value =
+        (audio.currentTime / audio.duration) * 100;
+
+    document.getElementById("currentTime").textContent =
+        formatTime(audio.currentTime);
+
+    document.getElementById("duration").textContent =
+        formatTime(audio.duration);
+});
+
+progress.addEventListener("input", () => {
+    if (audio.duration) {
+        audio.currentTime =
+            (progress.value / 100) * audio.duration;
+    }
+});
+
+// VOLUME
+volume.addEventListener("input", () => {
+    audio.volume = Number(volume.value);
+});
+
+audio.volume = 0.8;
+
+// UPLOAD MUSIC DARI PERANGKAT
+fileInput.addEventListener("change", event => {
+    const files = Array.from(event.target.files);
+
+    files.forEach(file => {
+        if (!file.type.startsWith("audio/")) return;
+
+        songs.push({
+            name: file.name.replace(/\.[^/.]+$/, ""),
+            url: URL.createObjectURL(file)
+        });
+    });
+
+    if (currentIndex === -1 && songs.length) {
+        loadSong(0, false);
+    } else {
+        renderPlaylist();
+    }
+
+    fileInput.value = "";
+});
+
+// INISIALISASI PLAYER
 createSpeedButtons();
+renderPlaylist();
+
+if (songs.length > 0) {
+    loadSong(0, false);
+}
 </script>
 
 </body>
