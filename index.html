@@ -200,7 +200,7 @@ input[type="range"] {
     margin-bottom: 13px;
 }
 
-/* ===== LOMPAT KE MENIT ===== */
+/* ===== LOMPAT KE MENIT & SINKRON ===== */
 .jump-row {
     display: flex;
     gap: 7px;
@@ -478,6 +478,17 @@ input[type="range"] {
         <div class="jump-hint" id="jumpHint">Format: menit.detik (2.00) atau jam:menit:detik (1:02:30)</div>
     </div>
 
+    <!-- SINKRON ANTAR PERANGKAT -->
+    <div class="section">
+        <div class="section-title">☁ SINKRON ANTAR PERANGKAT</div>
+        <div class="jump-row">
+            <input type="text" id="syncInput" placeholder="kode rahasia (min. 8 karakter)"
+                   autocomplete="off" autocapitalize="off" spellcheck="false">
+            <button type="button" class="jump-go" id="syncBtn">SIMPAN</button>
+        </div>
+        <div class="jump-hint" id="syncHint">Pakai kode yang sama di semua perangkat</div>
+    </div>
+
     <div class="section">
         <div class="section-title">⚡ PLAYBACK SPEED</div>
         <div class="speed-grid" id="speedGrid"></div>
@@ -515,16 +526,22 @@ input[type="range"] {
 
 <script>
 /* =====================================================
-   KONFIGURASI (opsional - biasanya tidak perlu diubah)
-   Kosongkan = deteksi otomatis dari alamat GitHub Pages
+   KONFIGURASI
    ===================================================== */
 const CONFIG = {
     owner: "",      // contoh: "budi"
     repo: "",       // contoh: "nova-player"
     branch: "",     // kosong = branch utama
-    manifest: "lagu.json",              // opsional: daftar lagu manual
-    localFolders: ["", "music", "musik", "lagu", "audio", "songs"], // untuk server lokal
+    manifest: "lagu.json",
+    localFolders: ["", "music", "musik", "lagu", "audio", "songs"],
     fallbackFile: "./lagu.mp3"
+};
+
+/* ====== SUPABASE ======
+   Anon/publishable key: Supabase > Project Settings > API Keys */
+const SB = {
+    url: "https://fbfvnllnvziutevbjood.supabase.co",
+    key: "sb_publishable_9JsEC8eC7Jm3JoVu-raYug_Ew4s76Tw"
 };
 
 const AUDIO_EXT = [
@@ -547,6 +564,14 @@ let currentIndex = -1;
 let currentSpeed = 1;
 let pendingSeek = null;    // detik yang menunggu metadata selesai dimuat
 let scanning = false;
+
+// sinkron cloud
+let resumeSeek = null;     // posisi dari cloud, diterapkan tanpa autoplay
+let trackReady = false;    // true setelah metadata lagu aktif termuat
+let progressMap = {};      // { namaLagu: {position_sec, duration_sec} }
+let syncCode = "";
+try { syncCode = localStorage.getItem("nova_sync_code") || ""; } catch (e) {}
+let lastSaved = 0;
 
 const speeds = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3];
 
@@ -654,8 +679,17 @@ function renderPlaylist() {
 function loadSong(index, autoplay = true) {
     if (index < 0 || index >= songs.length) return;
 
+    // simpan posisi lagu sebelumnya sebelum berpindah
+    saveProgress(true);
+
     currentIndex = index;
     pendingSeek = null;
+    trackReady = false;
+
+    const saved = progressMap[songs[index].name];
+    resumeSeek = (saved && saved.position_sec > 3 &&
+                  (!saved.duration_sec || saved.position_sec < saved.duration_sec - 5))
+                 ? saved.position_sec : null;
 
     audio.src = songs[index].url;
     audio.defaultPlaybackRate = currentSpeed;
@@ -759,8 +793,14 @@ audio.addEventListener("loadedmetadata", () => {
     if (pendingSeek !== null) {
         const t = pendingSeek;
         pendingSeek = null;
+        resumeSeek = null;
         applySeek(t, true);
+    } else if (resumeSeek !== null) {
+        audio.currentTime = Math.min(resumeSeek, audio.duration || resumeSeek); // lanjut tanpa autoplay
+        resumeSeek = null;
     }
+
+    trackReady = true;
 });
 
 audio.addEventListener("timeupdate", () => {
@@ -769,6 +809,8 @@ audio.addEventListener("timeupdate", () => {
     progress.value = (audio.currentTime / audio.duration) * 100;
     document.getElementById("currentTime").textContent = formatTime(audio.currentTime);
     document.getElementById("duration").textContent = formatTime(audio.duration);
+
+    saveProgress(false);
 });
 
 progress.addEventListener("input", () => {
@@ -832,8 +874,8 @@ function jumpToTime() {
             setJumpHint("Belum ada lagu untuk diputar", "err");
             return;
         }
-        pendingSeek = seconds;
         loadSong(0, false);
+        pendingSeek = seconds;   // diisi SETELAH loadSong (loadSong mereset pendingSeek)
         setJumpHint("Memuat lagu...", "ok");
         return;
     }
@@ -933,7 +975,7 @@ async function scanGithub() {
         }));
 }
 
-// 3) Server lokal (Live Server, http.server, dll) - baca halaman index folder
+// 3) Server lokal (Live Server, http.server, dll)
 async function scanDirectories() {
     const found = [];
 
@@ -1082,10 +1124,95 @@ folderInput.addEventListener("change", e => {
 
 document.getElementById("rescanBtn").addEventListener("click", scanRepoMusic);
 
+/* ================= SINKRON SUPABASE ================= */
+function rpc(fn, body, keepalive) {
+    return fetch(SB.url + "/rest/v1/rpc/" + fn, {
+        method: "POST",
+        keepalive: !!keepalive,
+        headers: {
+            "apikey": SB.key,
+            "Authorization": "Bearer " + SB.key,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    });
+}
+
+function setSyncHint(text, type) {
+    const el = document.getElementById("syncHint");
+    el.textContent = text;
+    el.className = "jump-hint" + (type ? " " + type : "");
+}
+
+function saveProgress(force) {
+    if (!syncCode || currentIndex < 0 || !songs[currentIndex]) return;
+    if (!trackReady || resumeSeek !== null || pendingSeek !== null) return;
+    if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
+
+    const now = Date.now();
+    if (!force && now - lastSaved < 5000) return;   // maks. 1x per 5 detik
+    lastSaved = now;
+
+    const s = songs[currentIndex];
+    progressMap[s.name] = { position_sec: audio.currentTime, duration_sec: audio.duration };
+
+    rpc("save_progress", {
+        p_code: syncCode, p_track: s.name,
+        p_pos: audio.currentTime, p_dur: audio.duration
+    }, true).catch(() => {});
+}
+
+async function syncFromCloud() {
+    if (!syncCode) return;
+    if (!SB.key) {
+        setSyncHint("Key Supabase belum diisi di kode (SB.key)", "err");
+        return;
+    }
+
+    try {
+        const res = await rpc("get_progress", { p_code: syncCode });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const rows = await res.json();
+
+        progressMap = {};
+        rows.forEach(r => { progressMap[r.track_key] = r; });
+
+        if (!rows.length) { setSyncHint("Tersambung. Belum ada riwayat.", "ok"); return; }
+
+        // lagu terakhir diputar = baris paling baru (sudah diurutkan)
+        const idx = songs.findIndex(s => s.name === rows[0].track_key);
+        if (idx !== -1 && audio.paused) {
+            loadSong(idx, false);
+            setSyncHint("Dilanjutkan: " + rows[0].track_key + " (" + formatTime(rows[0].position_sec) + ")", "ok");
+        } else {
+            setSyncHint("Tersambung ke cloud ✓", "ok");
+        }
+    } catch (e) {
+        setSyncHint("Gagal sinkron: " + e.message, "err");
+    }
+}
+
+const syncInput = document.getElementById("syncInput");
+syncInput.value = syncCode;
+
+document.getElementById("syncBtn").addEventListener("click", () => {
+    const code = syncInput.value.trim();
+    if (code.length < 8) { setSyncHint("Kode minimal 8 karakter", "err"); return; }
+    syncCode = code;
+    try { localStorage.setItem("nova_sync_code", code); } catch (e) {}
+    setSyncHint("Menyambungkan...", "ok");
+    syncFromCloud();
+});
+
+audio.addEventListener("pause", () => saveProgress(true));
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") saveProgress(true);
+});
+
 /* ================= INISIALISASI ================= */
 createSpeedButtons();
 renderPlaylist();
-scanRepoMusic();
+scanRepoMusic().then(syncFromCloud);
 </script>
 
 </body>
