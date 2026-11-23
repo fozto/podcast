@@ -418,6 +418,108 @@ input[type="range"] {
     margin-top: 25px;
 }
 
+/* ===== LOGIN PIN ===== */
+.login {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #050D19F2;
+    backdrop-filter: blur(6px);
+}
+.login.show { display: flex; }
+
+.login-card {
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+    background: linear-gradient(145deg, #10243D, #091629);
+    border: 1px solid #234263;
+    border-radius: 25px;
+    padding: 30px 22px;
+    box-shadow: 0 20px 70px #0009;
+}
+
+.login-title {
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: #A8C6E8;
+    margin-top: 22px;
+}
+
+.login-sub {
+    font-size: 11px;
+    color: #6687AC;
+    line-height: 1.6;
+    margin: 8px 0 22px;
+}
+
+.pin-wrap { position: relative; }
+
+.pin-boxes {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+}
+
+.pin-box {
+    aspect-ratio: 1 / 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #142A44;
+    border: 1px solid #244362;
+    border-radius: 10px;
+    font-size: 22px;
+    color: #EAF3FF;
+    transition: .15s;
+}
+
+.pin-box.active {
+    border-color: #4DA3FF;
+    box-shadow: 0 0 12px #3289E955;
+}
+
+.pin-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    font-size: 16px; /* cegah zoom otomatis di iOS */
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: transparent;
+    caret-color: transparent;
+}
+
+.login-skip {
+    background: none;
+    border: none;
+    color: #5F83A8;
+    font-size: 11px;
+    margin-top: 18px;
+    cursor: pointer;
+    text-decoration: underline;
+    font-family: inherit;
+}
+
+.sync-status {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #7997B7;
+    text-align: center;
+    min-width: 0;
+}
+.sync-status.on { color: #5BAEFF; }
+
 @media(max-width: 360px) {
     .player { padding: 17px; }
     .speed-btn { font-size: 10px; }
@@ -427,6 +529,22 @@ input[type="range"] {
 </head>
 
 <body>
+
+<div class="login" id="login">
+    <div class="login-card">
+        <div class="logo">NOVA<span>.</span></div>
+        <div class="login-title">MASUK DENGAN PIN</div>
+        <div class="login-sub">Masukkan 6 angka. PIN baru otomatis dibuat saat pertama kali dipakai.</div>
+        <div class="pin-wrap">
+            <div class="pin-boxes" id="pinBoxes"></div>
+            <input id="pinInput" class="pin-input" type="text" inputmode="numeric"
+                   pattern="[0-9]*" maxlength="6" autocomplete="off"
+                   autocapitalize="off" spellcheck="false" aria-label="PIN 6 angka">
+        </div>
+        <div class="jump-hint" id="loginHint"></div>
+        <button class="login-skip" id="loginSkip" type="button">Lewati, tanpa sinkron</button>
+    </div>
+</div>
 
 <div class="player">
 
@@ -478,15 +596,13 @@ input[type="range"] {
         <div class="jump-hint" id="jumpHint">Format: menit.detik (2.00) atau jam:menit:detik (1:02:30)</div>
     </div>
 
-    <!-- SINKRON ANTAR PERANGKAT -->
+    <!-- AKUN SINKRON -->
     <div class="section">
         <div class="section-title">☁ SINKRON ANTAR PERANGKAT</div>
         <div class="jump-row">
-            <input type="text" id="syncInput" placeholder="kode rahasia (min. 8 karakter)"
-                   autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button type="button" class="jump-go" id="syncBtn">SIMPAN</button>
+            <div class="sync-status" id="syncStatus">Belum masuk</div>
+            <button type="button" class="jump-go" id="syncBtn">MASUK</button>
         </div>
-        <div class="jump-hint" id="syncHint">Pakai kode yang sama di semua perangkat</div>
     </div>
 
     <div class="section">
@@ -569,8 +685,11 @@ let scanning = false;
 let resumeSeek = null;     // posisi dari cloud, diterapkan tanpa autoplay
 let trackReady = false;    // true setelah metadata lagu aktif termuat
 let progressMap = {};      // { namaLagu: {position_sec, duration_sec} }
-let syncCode = "";
-try { syncCode = localStorage.getItem("nova_sync_code") || ""; } catch (e) {}
+let syncCode = "";         // terisi hanya setelah login berhasil
+let storedCode = "";
+try { storedCode = localStorage.getItem("nova_sync_code") || ""; } catch (e) {}
+let hasPlayed = false;     // true jika lagu aktif sudah benar-benar diputar
+let scanPromise = null;
 let lastSaved = 0;
 
 const speeds = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3];
@@ -685,6 +804,7 @@ function loadSong(index, autoplay = true) {
     currentIndex = index;
     pendingSeek = null;
     trackReady = false;
+    hasPlayed = false;
 
     const saved = progressMap[songs[index].name];
     resumeSeek = (saved && saved.position_sec > 3 &&
@@ -748,6 +868,7 @@ function previousSong() {
 }
 
 audio.addEventListener("play", () => {
+    hasPlayed = true;
     playBtn.textContent = "Ⅱ";
     document.getElementById("status").textContent = "● PLAYING";
 });
@@ -1124,7 +1245,7 @@ folderInput.addEventListener("change", e => {
 
 document.getElementById("rescanBtn").addEventListener("click", scanRepoMusic);
 
-/* ================= SINKRON SUPABASE ================= */
+/* ================= SINKRON SUPABASE (LOGIN PIN) ================= */
 function rpc(fn, body, keepalive) {
     return fetch(SB.url + "/rest/v1/rpc/" + fn, {
         method: "POST",
@@ -1138,15 +1259,9 @@ function rpc(fn, body, keepalive) {
     });
 }
 
-function setSyncHint(text, type) {
-    const el = document.getElementById("syncHint");
-    el.textContent = text;
-    el.className = "jump-hint" + (type ? " " + type : "");
-}
-
 function saveProgress(force) {
     if (!syncCode || currentIndex < 0 || !songs[currentIndex]) return;
-    if (!trackReady || resumeSeek !== null || pendingSeek !== null) return;
+    if (!trackReady || !hasPlayed || resumeSeek !== null || pendingSeek !== null) return;
     if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
 
     const now = Date.now();
@@ -1162,46 +1277,148 @@ function saveProgress(force) {
     }, true).catch(() => {});
 }
 
-async function syncFromCloud() {
-    if (!syncCode) return;
-    if (!SB.key) {
-        setSyncHint("Key Supabase belum diisi di kode (SB.key)", "err");
+/* ---- UI login ---- */
+const loginEl = document.getElementById("login");
+const pinInput = document.getElementById("pinInput");
+const pinBoxes = document.getElementById("pinBoxes");
+const loginHint = document.getElementById("loginHint");
+const syncStatus = document.getElementById("syncStatus");
+const syncBtn = document.getElementById("syncBtn");
+let loggingIn = false;
+
+function buildPinBoxes() {
+    pinBoxes.innerHTML = "";
+    for (let i = 0; i < 6; i++) {
+        const d = document.createElement("div");
+        d.className = "pin-box";
+        pinBoxes.appendChild(d);
+    }
+}
+
+function renderPin() {
+    const len = pinInput.value.length;
+    Array.from(pinBoxes.children).forEach((box, i) => {
+        box.textContent = i < len ? "●" : "";
+        box.classList.toggle("active", i === Math.min(len, 5) && loginEl.classList.contains("show"));
+    });
+}
+
+function setLoginHint(text, type) {
+    loginHint.textContent = text;
+    loginHint.className = "jump-hint" + (type ? " " + type : "");
+}
+
+function showLogin(message, type) {
+    pinInput.value = "";
+    pinInput.disabled = false;
+    renderPin();
+    setLoginHint(message || "", type);
+    loginEl.classList.add("show");
+    renderPin();
+    setTimeout(() => pinInput.focus(), 50);
+}
+
+function hideLogin() {
+    loginEl.classList.remove("show");
+    pinInput.blur();
+}
+
+function updateSyncUI(message) {
+    if (syncCode) {
+        syncStatus.textContent = message || "● Tersambung • PIN ••••••";
+        syncStatus.classList.add("on");
+        syncBtn.textContent = "KELUAR";
+    } else {
+        syncStatus.textContent = message || "Belum masuk";
+        syncStatus.classList.remove("on");
+        syncBtn.textContent = "MASUK";
+    }
+}
+
+/* ---- lanjutkan riwayat terakhir ---- */
+function resumeLast(rows, tryPlay) {
+    if (!rows.length) {
+        updateSyncUI("● Tersambung • belum ada riwayat");
+        return;
+    }
+    if (!audio.paused) {           // sedang memutar sesuatu, jangan diganggu
+        updateSyncUI();
         return;
     }
 
+    const last = rows[0];          // baris terbaru (sudah diurutkan dari server)
+    const idx = songs.findIndex(s => s.name === last.track_key);
+
+    if (idx === -1) {
+        updateSyncUI("● Tersambung • lagu terakhir tidak ada di playlist");
+        return;
+    }
+
+    loadSong(idx, false);          // judul, playlist & posisi terakhir langsung tampil
+
+    if (tryPlay) {
+        audio.play().then(() => {
+            updateSyncUI("● Dilanjutkan: " + last.track_key + " (" + formatTime(last.position_sec) + ")");
+        }).catch(() => {
+            updateSyncUI("● Siap dilanjutkan • tekan ▶ (" + formatTime(last.position_sec) + ")");
+        });
+    } else {
+        updateSyncUI("● Siap dilanjutkan • tekan ▶ (" + formatTime(last.position_sec) + ")");
+    }
+}
+
+/* ---- login ---- */
+async function doLogin(code, auto) {
+    if (loggingIn) return;
+    loggingIn = true;
+    pinInput.disabled = true;
+    if (!auto) setLoginHint("Memeriksa...", "ok");
+
     try {
-        const res = await rpc("get_progress", { p_code: syncCode });
+        if (scanPromise) await scanPromise;   // tunggu playlist selesai dimuat
+
+        const res = await rpc("get_progress", { p_code: code });
         if (!res.ok) throw new Error("HTTP " + res.status);
         const rows = await res.json();
+
+        syncCode = code;
+        try { localStorage.setItem("nova_sync_code", code); } catch (e) {}
 
         progressMap = {};
         rows.forEach(r => { progressMap[r.track_key] = r; });
 
-        if (!rows.length) { setSyncHint("Tersambung. Belum ada riwayat.", "ok"); return; }
-
-        // lagu terakhir diputar = baris paling baru (sudah diurutkan)
-        const idx = songs.findIndex(s => s.name === rows[0].track_key);
-        if (idx !== -1 && audio.paused) {
-            loadSong(idx, false);
-            setSyncHint("Dilanjutkan: " + rows[0].track_key + " (" + formatTime(rows[0].position_sec) + ")", "ok");
-        } else {
-            setSyncHint("Tersambung ke cloud ✓", "ok");
-        }
+        hideLogin();
+        updateSyncUI();
+        resumeLast(rows, true);
     } catch (e) {
-        setSyncHint("Gagal sinkron: " + e.message, "err");
+        showLogin((auto ? "Gagal masuk otomatis: " : "Gagal masuk: ") + e.message, "err");
+    } finally {
+        loggingIn = false;
+        pinInput.disabled = false;
     }
 }
 
-const syncInput = document.getElementById("syncInput");
-syncInput.value = syncCode;
+function logout() {
+    saveProgress(true);
+    syncCode = "";
+    progressMap = {};
+    try { localStorage.removeItem("nova_sync_code"); } catch (e) {}
+    updateSyncUI();
+    showLogin();
+}
 
-document.getElementById("syncBtn").addEventListener("click", () => {
-    const code = syncInput.value.trim();
-    if (code.length < 8) { setSyncHint("Kode minimal 8 karakter", "err"); return; }
-    syncCode = code;
-    try { localStorage.setItem("nova_sync_code", code); } catch (e) {}
-    setSyncHint("Menyambungkan...", "ok");
-    syncFromCloud();
+pinInput.addEventListener("input", () => {
+    pinInput.value = pinInput.value.replace(/\D/g, "").slice(0, 6);
+    setLoginHint("");
+    renderPin();
+    if (pinInput.value.length === 6) doLogin(pinInput.value, false);
+});
+
+document.getElementById("loginSkip").addEventListener("click", hideLogin);
+
+syncBtn.addEventListener("click", () => {
+    if (syncCode) logout();
+    else showLogin();
 });
 
 audio.addEventListener("pause", () => saveProgress(true));
@@ -1212,7 +1429,16 @@ document.addEventListener("visibilitychange", () => {
 /* ================= INISIALISASI ================= */
 createSpeedButtons();
 renderPlaylist();
-scanRepoMusic().then(syncFromCloud);
+buildPinBoxes();
+updateSyncUI();
+scanPromise = scanRepoMusic();
+
+if (/^\d{6}$/.test(storedCode)) {
+    doLogin(storedCode, true);     // sudah pernah masuk: otomatis masuk & lanjutkan
+} else {
+    try { localStorage.removeItem("nova_sync_code"); } catch (e) {}
+    showLogin();
+}
 </script>
 
 </body>
